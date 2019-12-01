@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.40 scan initiated Sun Dec  1 10:30:10 2019 as: nmap -sn -n -oX result.xml 114.114.114.1/30 -->
+<nmaprun scanner="nmap" args="nmap -sn -n -oX result.xml 114.114.114.1/30" start="1575167410"
+         startstr="Sun Dec  1 10:30:10 2019" version="7.40" xmloutputversion="1.04">
+    <verbose level="0"/>
+    <debugging level="0"/>
+    <host>
+        <status state="up" reason="reset" reason_ttl="128"/>
+        <address addr="114.114.114.0" addrtype="ipv4"/>
+        <hostnames>
+        </hostnames>
+        <times srtt="265" rttvar="5000" to="100000"/>
+    </host>
+    <host>
+        <status state="up" reason="reset" reason_ttl="128"/>
+        <address addr="114.114.114.1" addrtype="ipv4"/>
+        <hostnames>
+        </hostnames>
+        <times srtt="481" rttvar="5000" to="100000"/>
+    </host>
+    <host>
+        <status state="up" reason="reset" reason_ttl="128"/>
+        <address addr="114.114.114.2" addrtype="ipv4"/>
+        <hostnames>
+        </hostnames>
+        <times srtt="466" rttvar="5000" to="100000"/>
+    </host>
+    <host>
+        <status state="up" reason="reset" reason_ttl="128"/>
+        <address addr="114.114.114.3" addrtype="ipv4"/>
+        <hostnames>
+        </hostnames>
+        <times srtt="280" rttvar="5000" to="100000"/>
+    </host>
+    <runstats>
+        <finished time="1575167412" timestr="Sun Dec  1 10:30:12 2019" elapsed="1.34"
+                  summary="Nmap done at Sun Dec  1 10:30:12 2019; 4 IP addresses (4 hosts up) scanned in 1.34 seconds"
+                  exit="success"/>
+        <hosts up="4" down="0" total="4"/>
+    </runstats>
+</nmaprun>
