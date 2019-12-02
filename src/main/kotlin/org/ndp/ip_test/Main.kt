@@ -19,17 +19,17 @@ object Main {
         resultDir.mkdirs()
     }
 
-    fun parseParam(): String {
+    private fun parseParam(): String {
         val param = File("/tmp/conf/busi.conf")
         return param.readText()
     }
 
-    fun execute(ips: String) {
+    private fun execute(ips: String) {
         val command = "nmap -sn -n -oX result.xml $ips"
         Runtime.getRuntime().exec(command)
     }
 
-    fun parseMidResult(): Array<String> {
+    private fun parseMidResult(): Array<String> {
         val xml = File("./result.xml").readText()
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
         val xPath = XPathFactory.newInstance().newXPath()
@@ -37,45 +37,46 @@ object Main {
         return Array(qNodes.length) { qNodes.item(it).textContent }
     }
 
-    fun writeResult(result: Array<String>) {
+    private fun writeResult(result: Array<String>) {
         resultFile.writeText(result.joinToString(","))
     }
 
-    fun successEnd() {
+    private fun successEnd() {
         val successFile = File("/tmp/appstatus/0")
         successFile.writeText("")
     }
 
-    fun errorEnd(message: String, code: Int) {
+    private fun errorEnd(message: String, code: Int) {
         val errorFile = File("/tmp/appstatus/1")
         errorFile.writeText(message)
         exitProcess(code)
     }
-}
 
-fun main() {
-    Log.info("ip-test start")
-    // 获取配置
-    val ips = Main.parseParam()
-    // 执行
-    try {
-        Main.execute(ips)
-    } catch (e: Exception) {
-        Log.error(e.toString())
-        println(e.stackTrace)
-        Main.errorEnd(e.toString(), 11)
+    @JvmStatic
+    fun main(args: Array<String>) {
+        Log.info("ip-test start")
+        // 获取配置
+        val ips = parseParam()
+        // 执行
+        try {
+            execute(ips)
+        } catch (e: Exception) {
+            Log.error(e.toString())
+            println(e.stackTrace)
+            errorEnd(e.toString(), 11)
+        }
+        // 解析中间文件
+        val result: Array<String>
+        try {
+            result = parseMidResult()
+            // 写结果
+            writeResult(result)
+        } catch (e: Exception) {
+            Log.error(e.toString())
+            println(e.stackTrace)
+            errorEnd(e.toString(), 11)
+        }
+        // 结束
+        successEnd()
     }
-    // 解析中间文件
-    val result: Array<String>
-    try {
-        result = Main.parseMidResult()
-        // 写结果
-        Main.writeResult(result)
-    } catch (e: Exception) {
-        Log.error(e.toString())
-        println(e.stackTrace)
-        Main.errorEnd(e.toString(), 11)
-    }
-    // 结束
-    Main.successEnd()
 }
