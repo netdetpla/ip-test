@@ -34,7 +34,7 @@ object Main {
         val xml = File("./result.xml")
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
         val xPath = XPathFactory.newInstance().newXPath()
-        val qNodes = xPath.evaluate("//address/@addr", doc, XPathConstants.NODE) as NodeList
+        val qNodes = xPath.evaluate("//@addr", doc, XPathConstants.NODESET) as NodeList
         return Array(qNodes.length) { qNodes.item(it).textContent }
     }
 
