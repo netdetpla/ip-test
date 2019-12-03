@@ -1,7 +1,9 @@
 package org.ndp.ip_test
 
 import org.w3c.dom.NodeList
+import org.xml.sax.InputSource
 import java.io.File
+import java.io.StringReader
 import java.lang.Exception
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathConstants
@@ -30,8 +32,8 @@ object Main {
     }
 
     private fun parseMidResult(): Array<String> {
-        val xml = File("./result.xml")
-        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
+        val xml = File("./result.xml").readText()
+        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(InputSource(StringReader(xml)))
         val xPath = XPathFactory.newInstance().newXPath()
         val qNodes = xPath.evaluate("//address/@addr", doc, XPathConstants.NODE) as NodeList
         return Array(qNodes.length) { qNodes.item(it).textContent }
