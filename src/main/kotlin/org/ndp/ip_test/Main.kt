@@ -30,7 +30,7 @@ object Main {
     }
 
     private fun parseMidResult(): Array<String> {
-        val xml = File("./result.xml").readText()
+        val xml = File("./result.xml")
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
         val xPath = XPathFactory.newInstance().newXPath()
         val qNodes = xPath.evaluate("//address/@addr", doc, XPathConstants.NODE) as NodeList
@@ -62,7 +62,7 @@ object Main {
             execute(ips)
         } catch (e: Exception) {
             Log.error(e.toString())
-            println(e.stackTrace.toString())
+            e.printStackTrace()
             errorEnd(e.toString(), 11)
         }
         // 解析中间文件
@@ -73,7 +73,7 @@ object Main {
             writeResult(result)
         } catch (e: Exception) {
             Log.error(e.toString())
-            println(e.stackTrace.toString())
+            e.printStackTrace()
             errorEnd(e.toString(), 11)
         }
         // 结束
