@@ -62,7 +62,7 @@ object Main {
             execute(ips)
         } catch (e: Exception) {
             Log.error(e.toString())
-            println(e.stackTrace)
+            println(e.stackTrace.toString())
             errorEnd(e.toString(), 11)
         }
         // 解析中间文件
@@ -73,7 +73,7 @@ object Main {
             writeResult(result)
         } catch (e: Exception) {
             Log.error(e.toString())
-            println(e.stackTrace)
+            println(e.stackTrace.toString())
             errorEnd(e.toString(), 11)
         }
         // 结束
