@@ -26,7 +26,8 @@ object Main {
 
     private fun execute(ips: String) {
         val command = "nmap -sn -n -oX result.xml $ips"
-        Runtime.getRuntime().exec(command)
+        val nmap = Runtime.getRuntime().exec(command)
+        nmap.waitFor()
     }
 
     private fun parseMidResult(): Array<String> {
