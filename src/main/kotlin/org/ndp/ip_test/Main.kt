@@ -19,13 +19,14 @@ object Main {
         resultDir.mkdirs()
     }
 
-    private fun parseParam(): String {
-        val param = File("/tmp/conf/busi.conf")
-        return param.readText()
+    private fun parseParam() {
+        val param = File("/tmp/conf/busi.conf").readText()
+        val input = File("/input_file")
+        input.writeText(param.replace(",", "\n"))
     }
 
-    private fun execute(ips: String) {
-        val command = "nmap -sn -n -oX result.xml $ips"
+    private fun execute() {
+        val command = "nmap -sn -n -oX result.xml -iL /input_file"
         val nmap = Runtime.getRuntime().exec(command)
         nmap.waitFor()
     }
@@ -60,16 +61,9 @@ object Main {
         val ips = parseParam()
         // 执行
         try {
-            execute(ips)
-        } catch (e: Exception) {
-            Log.error(e.toString())
-            e.printStackTrace()
-            errorEnd(e.toString(), 11)
-        }
-        // 解析中间文件
-        val result: Array<String>
-        try {
-            result = parseMidResult()
+            execute()
+            // 解析中间文件
+            val result: Array<String> = parseMidResult()
             // 写结果
             writeResult(result)
         } catch (e: Exception) {
