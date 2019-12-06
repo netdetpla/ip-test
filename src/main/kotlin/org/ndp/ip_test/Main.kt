@@ -22,25 +22,40 @@ object Main {
     private fun parseParam() {
         val param = File("/tmp/conf/busi.conf").readText()
         val input = File("/input_file")
+        Log.debug("params: ")
+        Log.debug(param)
         input.writeText(param.replace(",", "\n"))
     }
 
     private fun execute() {
-        val command = "nmap -sn -n -oX result.xml -iL /input_file"
-        val nmap = Runtime.getRuntime().exec(command)
+        Log.info("nmap start")
+        val nmapBuilder = ProcessBuilder(
+                "nmap -sn -n -oX result.xml -iL /input_file".split(" ")
+        )
+        nmapBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+        nmapBuilder.redirectError(ProcessBuilder.Redirect.INHERIT)
+        nmapBuilder.directory(File("/"))
+        val nmap = nmapBuilder.start()
         nmap.waitFor()
+        Log.info("nmap end")
     }
 
     private fun parseMidResult(): Array<String> {
+        Log.info("parsing the result of nmap")
         val xml = File("./result.xml")
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
         val xPath = XPathFactory.newInstance().newXPath()
         val qNodes = xPath.evaluate("//@addr", doc, XPathConstants.NODESET) as NodeList
+        Log.info("finished parsing")
         return Array(qNodes.length) { qNodes.item(it).textContent }
     }
 
     private fun writeResult(result: Array<String>) {
-        resultFile.writeText(result.joinToString(","))
+        val resultStr = result.joinToString(",")
+        Log.debug("result: ")
+        Log.debug(resultStr)
+        Log.info("writing result file")
+        resultFile.writeText(resultStr)
     }
 
     private fun successEnd() {
@@ -58,7 +73,7 @@ object Main {
     fun main(args: Array<String>) {
         Log.info("ip-test start")
         // 获取配置
-        val ips = parseParam()
+        parseParam()
         // 执行
         try {
             execute()
@@ -73,5 +88,6 @@ object Main {
         }
         // 结束
         successEnd()
+        Log.info("ip-test end successfully")
     }
 }
