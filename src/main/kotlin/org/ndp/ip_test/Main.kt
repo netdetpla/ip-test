@@ -1,8 +1,5 @@
 package org.ndp.ip_test
 
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -14,8 +11,6 @@ object Main {
     private val appStatusDir = File("/tmp/appstatus/")
     private val resultDir = File("/tmp/result/")
     private val resultFile = File("/tmp/result/result")
-    private val ips = ArrayList<String>()
-    private val result = ArrayList<String>()
 
     init {
         appStatusDir.mkdirs()
@@ -23,50 +18,32 @@ object Main {
     }
 
     private fun parseParam() {
-        val param = File("/tmp/conf/busi.conf").readText().replace("\n", "")
+        val param = File("/tmp/conf/busi.conf").readText()
+        val input = File("/input_file")
         Log.debug("params: ")
         Log.debug(param)
-        for (i in param.split(",")) {
-            when {
-                i.contains('-') -> ips.addAll(Utils.splitINetSegment(i))
-                i.contains('/') -> ips.addAll(Utils.splitMaskedINet(i))
-                else -> ips.add(i)
-            }
-        }
+        input.writeText(param.replace(",", "\n"))
     }
 
-    private fun ping(target: String): Boolean {
-        val pingBuilder = ProcessBuilder(
-                ("ping -c 4 -W 2 $target").split(" ")
+    private fun execute(): String {
+        Log.info("ping start")
+        val fpingBuilder = ProcessBuilder(
+                ("fping -b 64 -f /input_file -a -q").split(" ")
         )
-        val ping = pingBuilder.start()
-        ping.waitFor()
+        val fping = fpingBuilder.start()
+        fping.waitFor()
         val result = ByteArrayOutputStream()
-        val buffer = ByteArray(ping.inputStream.available())
+        val buffer = ByteArray(fping.inputStream.available())
         var length: Int
-        while (ping.inputStream.read(buffer).also { length = it } != -1) {
+        while (fping.inputStream.read(buffer).also { length = it } != -1) {
             result.write(buffer, 0, length)
         }
-        val str: String = result.toString(StandardCharsets.UTF_8.name())
-        return !str.contains("100% packet loss,")
-    }
-
-    private fun execute() = runBlocking {
-        Log.info("ping start")
-        val coroutineSet = HashMap<String,Deferred<Boolean>>()
-        for (i in ips) {
-            coroutineSet[i] = async { ping(i) }
-        }
-        for (i in ips) {
-            if (coroutineSet[i]!!.await()) {
-                result.add(i)
-            }
-        }
         Log.info("ping end")
+        return result.toString(StandardCharsets.UTF_8.name())
     }
 
-    private fun writeResult() {
-        val resultStr = result.joinToString(",")
+    private fun writeResult(result: String) {
+        val resultStr = result.replace('\n', ',')
         Log.debug("result: ")
         Log.debug(resultStr)
         Log.info("writing result file")
@@ -91,9 +68,9 @@ object Main {
         parseParam()
         // 执行
         try {
-            execute()
+            val result = execute()
             // 写结果
-            writeResult()
+            writeResult(result)
         } catch (e: Exception) {
             Log.error(e.toString())
             e.printStackTrace()
