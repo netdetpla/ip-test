@@ -19,6 +19,7 @@ object Main {
 
     private fun parseParam() {
         val param = File("/tmp/conf/busi.conf").readText()
+                .replace("\n", "")
         val input = File("/input_file")
         Log.debug("params: ")
         Log.debug(param)
