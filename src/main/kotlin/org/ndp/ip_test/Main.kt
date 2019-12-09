@@ -58,8 +58,10 @@ object Main {
             coroutineSet[i] = async { ping(i) }
         }
         for (i in ips) {
-            if (coroutineSet[i]!!.await())
+            if (coroutineSet[i]!!.await()) {
                 result.add(i)
+                print(i)
+            }
         }
         Log.info("ping end")
     }
