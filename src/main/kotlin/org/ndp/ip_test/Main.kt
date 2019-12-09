@@ -53,6 +53,10 @@ object Main {
     }
 
     private fun writeResult(result: String) {
+        if (result == "") {
+            resultFile.writeText("")
+            return
+        }
         val resultStr = result.replace('\n', ',')
                 .removeRange(result.length -1, result.length)
         Log.debug("result: ")
