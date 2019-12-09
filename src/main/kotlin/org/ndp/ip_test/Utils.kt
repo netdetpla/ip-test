@@ -31,7 +31,7 @@ object Utils {
         val ipEnd = parseIPEnd(ipStart, ipSet[1].toInt())
         val targets = ArrayList<String>()
         for (i in ipStart..ipEnd) {
-            targets.add(i.toString())
+            targets.add(iNetNumber2String(i))
         }
         return targets
     }
@@ -42,7 +42,7 @@ object Utils {
         val ipEnd = iNetString2Number(ipSet[1])
         val targets = ArrayList<String>()
         for (i in ipStart..ipEnd) {
-            targets.add(i.toString())
+            targets.add(iNetNumber2String(i))
         }
         return targets
     }

@@ -60,7 +60,6 @@ object Main {
         for (i in ips) {
             if (coroutineSet[i]!!.await()) {
                 result.add(i)
-                print(i)
             }
         }
         Log.info("ping end")
