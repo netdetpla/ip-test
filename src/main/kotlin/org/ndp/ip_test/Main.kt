@@ -1,18 +1,21 @@
 package org.ndp.ip_test
 
-import org.w3c.dom.NodeList
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
+import java.io.ByteArrayOutputStream
 import java.io.File
-import java.lang.Exception
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.xpath.XPathConstants
-import javax.xml.xpath.XPathFactory
+import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
+
 
 object Main {
 
     private val appStatusDir = File("/tmp/appstatus/")
     private val resultDir = File("/tmp/result/")
     private val resultFile = File("/tmp/result/result")
+    private lateinit var ips: List<String>
+    private val result = ArrayList<String>()
 
     init {
         appStatusDir.mkdirs()
@@ -21,36 +24,41 @@ object Main {
 
     private fun parseParam() {
         val param = File("/tmp/conf/busi.conf").readText()
-        val input = File("/input_file")
         Log.debug("params: ")
         Log.debug(param)
-        input.writeText(param.replace(",", "\n"))
+        ips = param.split(",")
     }
 
-    private fun execute() {
-        Log.info("nmap start")
-        val nmapBuilder = ProcessBuilder(
-                "nmap -sn -n -oX result.xml -iL /input_file".split(" ")
+    private fun ping(target: String): Boolean {
+        val pingBuilder = ProcessBuilder(
+                ("ping -c 4 -W 2 $target").split(" ")
         )
-        nmapBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT)
-        nmapBuilder.redirectError(ProcessBuilder.Redirect.INHERIT)
-        nmapBuilder.directory(File("/"))
-        val nmap = nmapBuilder.start()
-        nmap.waitFor()
-        Log.info("nmap end")
+        val ping = pingBuilder.start()
+        ping.waitFor()
+        val result = ByteArrayOutputStream()
+        val buffer = ByteArray(ping.inputStream.available())
+        var length: Int
+        while (ping.inputStream.read(buffer).also { length = it } != -1) {
+            result.write(buffer, 0, length)
+        }
+        val str: String = result.toString(StandardCharsets.UTF_8.name())
+        return !str.contains("100% packet loss,")
     }
 
-    private fun parseMidResult(): Array<String> {
-        Log.info("parsing the result of nmap")
-        val xml = File("./result.xml")
-        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
-        val xPath = XPathFactory.newInstance().newXPath()
-        val qNodes = xPath.evaluate("//@addr", doc, XPathConstants.NODESET) as NodeList
-        Log.info("finished parsing")
-        return Array(qNodes.length) { qNodes.item(it).textContent }
+    private fun execute() = runBlocking {
+        Log.info("ping start")
+        val coroutineSet = HashMap<String,Deferred<Boolean>>()
+        for (i in ips) {
+            coroutineSet[i] = async { ping(i) }
+        }
+        for (i in ips) {
+            if (coroutineSet[i]!!.await())
+                result.add(i)
+        }
+        Log.info("ping end")
     }
 
-    private fun writeResult(result: Array<String>) {
+    private fun writeResult() {
         val resultStr = result.joinToString(",")
         Log.debug("result: ")
         Log.debug(resultStr)
@@ -77,10 +85,8 @@ object Main {
         // 执行
         try {
             execute()
-            // 解析中间文件
-            val result: Array<String> = parseMidResult()
             // 写结果
-            writeResult(result)
+            writeResult()
         } catch (e: Exception) {
             Log.error(e.toString())
             e.printStackTrace()
