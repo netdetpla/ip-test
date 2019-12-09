@@ -14,7 +14,7 @@ object Main {
     private val appStatusDir = File("/tmp/appstatus/")
     private val resultDir = File("/tmp/result/")
     private val resultFile = File("/tmp/result/result")
-    private lateinit var ips: List<String>
+    private val ips = ArrayList<String>()
     private val result = ArrayList<String>()
 
     init {
@@ -26,7 +26,13 @@ object Main {
         val param = File("/tmp/conf/busi.conf").readText()
         Log.debug("params: ")
         Log.debug(param)
-        ips = param.split(",")
+        for (i in param.split(",")) {
+            when {
+                i.contains('-') -> ips.addAll(Utils.splitINetSegment(i))
+                i.contains('/') -> ips.addAll(Utils.splitMaskedINet(i))
+                else -> ips.add(i)
+            }
+        }
     }
 
     private fun ping(target: String): Boolean {
