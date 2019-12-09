@@ -2,7 +2,7 @@ FROM openjdk:11.0.5-jre-stretch
 
 ADD ["sources.list", "/etc/apt/"]
 
-RUN apt update && apt install -y
+RUN apt update && apt install -y fping
 
 ADD ["target/ip-test-1-jar-with-dependencies.jar", "/"]
 
