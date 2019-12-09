@@ -23,7 +23,7 @@ object Main {
     }
 
     private fun parseParam() {
-        val param = File("/tmp/conf/busi.conf").readText()
+        val param = File("/tmp/conf/busi.conf").readText().replace("\n", "")
         Log.debug("params: ")
         Log.debug(param)
         for (i in param.split(",")) {
