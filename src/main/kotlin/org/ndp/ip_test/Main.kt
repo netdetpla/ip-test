@@ -22,7 +22,15 @@ object Main {
         val input = File("/input_file")
         Log.debug("params: ")
         Log.debug(param)
-        input.writeText(param.replace(",", "\n"))
+        val ips = ArrayList<String>()
+        for (i in param.split(",")) {
+            when {
+                i.contains('-') -> ips.addAll(Utils.splitINetSegment(i))
+                i.contains('/') -> ips.addAll(Utils.splitMaskedINet(i))
+                else -> ips.add(i)
+            }
+        }
+        input.writeText(ips.joinToString("\n"))
     }
 
     private fun execute(): String {
