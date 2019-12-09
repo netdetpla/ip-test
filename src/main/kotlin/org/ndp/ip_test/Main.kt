@@ -44,6 +44,7 @@ object Main {
         Log.debug("ping exit")
         val result = ByteArrayOutputStream()
         val buffer = ByteArray(fping.inputStream.available())
+        Log.debug("buffer size: $buffer")
         var length: Int
         while (fping.inputStream.read(buffer).also { length = it } != -1) {
             result.write(buffer, 0, length)
