@@ -41,6 +41,7 @@ object Main {
         )
         val fping = fpingBuilder.start()
         fping.waitFor()
+        Log.debug("ping exit")
         val result = ByteArrayOutputStream()
         val buffer = ByteArray(fping.inputStream.available())
         var length: Int
